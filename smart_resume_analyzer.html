@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Resume Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        header {
+            background-color: #4a6fa5;
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+        }
+        
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        
+        main {
+            padding: 30px 0;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 40px 0;
+            background-color: #4a6fa5;
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #4a6fa5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: #3a5a80;
+        }
+        
+        .btn-danger {
+            background-color: #d9534f;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c9302c;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed #4a6fa5;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #4a6fa5;
+            width: 0%;
+        }
+        
+        .results {
+            margin-top: 20px;
+        }
+        
+        .skill-tag {
+            display: inline-block;
+            background-color: #e0e0e0;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .skill-tag.primary {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        .skill-tag.secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .job-match {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .match-score {
+            background-color: #4a6fa5;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            float: right;
+        }
+        
+        .match-score.high {
+            background-color: #28a745;
+        }
+        
+        .match-score.medium {
+            background-color: #ffc107;
+            color: #333;
+        }
+        
+        .match-score.low {
+            background-color: #dc3545;
+        }
+        
+        .job-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .company-name {
+            color: #4a6fa5;
+            margin-bottom: 10px;
+        }
+        
+        .skill-match {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .skill-match span {
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .skill-match .matched {
+            color: #28a745;
+        }
+        
+        .skill-match .missing {
+            color: #dc3545;
+        }
+        
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            max-width: 500px;
+            margin: 50px auto;
+        }
+        
+        .login-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background-color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .tab-btn.active {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        .login-form {
+            display: none;
+        }
+        
+        .login-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .error-message {
+            color: #d9534f;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* Employer Dashboard Styles */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .job-listing {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .job-actions {
+            margin-top: 10px;
+        }
+        
+        .job-actions button {
+            margin-right: 10px;
+        }
+        
+        /* Experience Level Indicator */
+        .experience-level {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .experience-level.entry {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .experience-level.mid {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .experience-level.senior {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Edit Job Page Styles */
+        .edit-job-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .success-message {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        /* Application Styles */
+        .application {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .application-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .application-status {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-reviewed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-accepted {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .application-details {
+            margin-bottom: 10px;
+        }
+        
+        .application-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab-button.active {
+            border-bottom: 2px solid #4a6fa5;
+            color: #4a6fa5;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Employee Dashboard Styles */
+        .employee-dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .dashboard-card {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .job-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .job-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .job-item:last-child {
+            border-bottom: none;
+        }
+        
+        .job-item h4 {
+            margin-bottom: 5px;
+        }
+        
+        .job-item p {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .refresh-btn {
+            margin-top: 15px;
+        }
+        
+        .no-applications {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">ResumeMatch</div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('home')">Home</a></li>
+                <li id="analyzerLink" style="display: none;"><a href="#" onclick="showPage('analyzer')">Analyzer</a></li>
+                <li id="dashboardLink" style="display: none;"><a href="#" onclick="showPage('dashboard')">Dashboard</a></li>
+                <li id="employerLink" style="display: none;"><a href="#" onclick="showPage('employer')">Employer</a></li>
+                <li id="loginLink"><a href="#" onclick="showPage('login')">Login</a></li>
+                <li id="logoutLink" style="display: none;"><a href="#" onclick="logout()">Logout</a></li>
+                <li><a href="#" onclick="showPage('about')">About</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <div class="hero">
+                <h1>Simple Resume Analyzer</h1>
+                <p>Upload your resume and find matching jobs</p>
+                <a href="#" class="btn" onclick="showPage('login')">Get Started</a>
+            </div>
+            
+            <div class="card">
+                <h2>How It Works</h2>
+                <ol>
+                    <li>Login to your account</li>
+                    <li>Upload your resume</li>
+                    <li>We analyze your skills and experience</li>
+                    <li>Find matching jobs based on detailed analysis</li>
+                    <li>Apply for jobs directly from the platform</li>
+                    <li>Track your application status</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Login Page -->
+        <div id="login" class="page">
+            <div class="login-container">
+                <div class="card">
+                    <h2>Login</h2>
+                    <div class="login-tabs">
+                        <button class="tab-btn active" onclick="switchTab('employee')">Employee</button>
+                        <button class="tab-btn" onclick="switchTab('employer')">Employer</button>
+                    </div>
+                    
+                    <!-- Employee Login Form -->
+                    <form id="employeeLoginForm" class="login-form active" onsubmit="handleLogin(event, 'employee')">
+                        <div class="form-group">
+                            <label for="empUsername">Username</label>
+                            <input type="text" id="empUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empPassword">Password</label>
+                            <input type="password" id="empPassword" required>
+                        </div>
+                        <button type="submit" class="btn">Login as Employee</button>
+                        <div id="empError" class="error-message">Invalid username or password</div>
+                    </form>
+                    
+                    <!-- Employer Login Form -->
+                    <form id="employerLoginForm" class="login-form" onsubmit="handleLogin(event, 'employer')">
+                        <div class="form-group">
+                            <label for="emprUsername">Username</label>
+                            <input type="text" id="emprUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emprPassword">Password</label>
+                            <input type="password" id="emprPassword" required>
+                        </div>
+                        <button type="submit" class="btn">Login as Employer</button>
+                        <div id="emprError" class="error-message">Invalid username or password</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Employee Dashboard Page -->
+        <div id="dashboard" class="page">
+            <div class="card">
+                <h2>Employee Dashboard</h2>
+                <div class="employee-dashboard">
+                    <div class="dashboard-card">
+                        <h3>Your Applications</h3>
+                        <div id="employeeApplications">
+                            <!-- Employee applications will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <h3>Available Jobs</h3>
+                        <div id="availableJobs" class="job-list">
+                            <!-- Available jobs will be populated here -->
+                        </div>
+                        <button class="btn refresh-btn" onclick="refreshAvailableJobs()">Refresh Jobs</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analyzer Page -->
+        <div id="analyzer" class="page">
+            <div class="card">
+                <h2>Upload Your Resume</h2>
+                <div class="upload-area" id="uploadArea">
+                    <h3>Click to upload your resume</h3>
+                    <p>PDF files only</p>
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf">
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                </div>
+                
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <div id="results" class="results" style="display: none;">
+                    <h3>Analysis Results</h3>
+                    <div class="card">
+                        <h4>Your Skills</h4>
+                        <div id="skillsContainer"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Experience Level</h4>
+                        <div id="experienceContainer"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Job Matches</h4>
+                        <div id="matchesContainer"></div>
+                        <button class="btn refresh-btn" onclick="refreshAnalysis()">Refresh Analysis</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Employer Dashboard Page -->
+        <div id="employer" class="page">
+            <div class="dashboard-header">
+                <h2>Employer Dashboard</h2>
+                <button class="btn" onclick="showPage('newJob')">Post New Job</button>
+            </div>
+            
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="switchEmployerTab('jobs')">Job Listings</button>
+                    <button class="tab-button" onclick="switchEmployerTab('applications')">Applications</button>
+                </div>
+                
+                <div id="jobsTab" class="tab-content active">
+                    <div class="card">
+                        <h3>Your Job Listings</h3>
+                        <div id="jobListings">
+                            <!-- Job listings will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="applicationsTab" class="tab-content">
+                    <div class="card">
+                        <h3>Applications Received</h3>
+                        <div id="applicationsList">
+                            <!-- Applications will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- New Job Page -->
+        <div id="newJob" class="page">
+            <div class="card">
+                <h2>Post New Job</h2>
+                <form id="newJobForm" onsubmit="postNewJob(event)">
+                    <div class="form-group">
+                        <label for="jobTitle">Job Title</label>
+                        <input type="text" id="jobTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="companyName">Company Name</label>
+                        <input type="text" id="companyName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobDescription">Job Description</label>
+                        <textarea id="jobDescription" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="requiredSkills">Required Skills (comma separated)</label>
+                        <input type="text" id="requiredSkills" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="experienceLevel">Experience Level</label>
+                        <select id="experienceLevel" required>
+                            <option value="entry">Entry Level</option>
+                            <option value="mid">Mid Level</option>
+                            <option value="senior">Senior Level</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Post Job</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Edit Job Page -->
+        <div id="editJob" class="page">
+            <div class="edit-job-container">
+                <div class="card">
+                    <h2>Edit Job</h2>
+                    <form id="editJobForm" onsubmit="updateJob(event)">
+                        <input type="hidden" id="editJobId">
+                        <div class="form-group">
+                            <label for="editJobTitle">Job Title</label>
+                            <input type="text" id="editJobTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCompanyName">Company Name</label>
+                            <input type="text" id="editCompanyName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editJobDescription">Job Description</label>
+                            <textarea id="editJobDescription" rows="5" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editRequiredSkills">Required Skills (comma separated)</label>
+                            <input type="text" id="editRequiredSkills" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editExperienceLevel">Experience Level</label>
+                            <select id="editExperienceLevel" required>
+                                <option value="entry">Entry Level</option>
+                                <option value="mid">Mid Level</option>
+                                <option value="senior">Senior Level</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn">Update Job</button>
+                            <button type="button" class="btn btn-secondary" onclick="showPage('employer')">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteJobFromEdit()">Delete Job</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- About Page -->
+        <div id="about" class="page">
+            <div class="card">
+                <h2>About ResumeMatch</h2>
+                <p>ResumeMatch helps you find jobs that match your skills and experience.</p>
+                
+                <h3>Features</h3>
+                <ul>
+                    <li>Advanced resume analysis</li>
+                    <li>Skill extraction and weighting</li>
+                    <li>Experience level matching</li>
+                    <li>Job matching algorithm</li>
+                    <li>Direct job application</li>
+                    <li>Application tracking</li>
+                    <li>Employer dashboard</li>
+                </ul>
+                
+                <h3>Contact Us</h3>
+                <p>Email: resumematchsini@gmail.com</p>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 ResumeMatch. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+        // Global variables
+        let currentUser = null;
+        let userRole = null;
+        let currentJobId = null;
+        let lastResumeProfile = null;
+        let jobListings = [
+            {
+                id: 1,
+                title: "Frontend Developer",
+                company: "Tech Company",
+                description: "We are looking for a skilled frontend developer with React experience.",
+                skills: [
+                    { name: "JavaScript", weight: 5 },
+                    { name: "HTML", weight: 4 },
+                    { name: "CSS", weight: 4 },
+                    { name: "React", weight: 5 },
+                    { name: "TypeScript", weight: 3 }
+                ],
+                experienceLevel: "mid",
+                postedBy: "user"  // Changed to match employer login
+            },
+            {
+                id: 2,
+                title: "Backend Developer",
+                company: "Digital Agency",
+                description: "Seeking a backend developer with Node.js and Python experience.",
+                skills: [
+                    { name: "Node.js", weight: 5 },
+                    { name: "Python", weight: 4 },
+                    { name: "Express", weight: 4 },
+                    { name: "MongoDB", weight: 3 },
+                    { name: "REST API", weight: 4 }
+                ],
+                experienceLevel: "mid",
+                postedBy: "user"  // Changed to match employer login
+            },
+            {
+                id: 3,
+                title: "Senior Full Stack Developer",
+                company: "Design Studio",
+                description: "Join our team as a senior full stack developer with strong design skills.",
+                skills: [
+                    { name: "JavaScript", weight: 5 },
+                    { name: "React", weight: 4 },
+                    { name: "Node.js", weight: 5 },
+                    { name: "MongoDB", weight: 3 },
+                    { name: "UI/UX", weight: 3 },
+                    { name: "AWS", weight: 4 }
+                ],
+                experienceLevel: "senior",
+                postedBy: "user"  // Changed to match employer login
+            },
+            {
+                id: 4,
+                title: "Junior Web Developer",
+                company: "Startup Inc",
+                description: "Looking for a junior web developer to join our growing team.",
+                skills: [
+                    { name: "HTML", weight: 4 },
+                    { name: "CSS", weight: 4 },
+                    { name: "JavaScript", weight: 5 },
+                    { name: "React", weight: 3 }
+                ],
+                experienceLevel: "entry",
+                postedBy: "user"  // Changed to match employer login
+            }
+        ];
+        
+        // Applications array to store job applications
+        let applications = [
+            // Sample application for testing
+            {
+                id: 1,
+                jobId: 1,
+                jobTitle: "Frontend Developer",
+                companyName: "Tech Company",
+                applicant: "user",
+                dateApplied: new Date().toLocaleDateString(),
+                status: 'Pending'
+            }
+        ];
+        
+        // Skill categories for better analysis
+        const skillCategories = {
+            frontend: ["HTML", "CSS", "JavaScript", "React", "Angular", "Vue.js", "TypeScript"],
+            backend: ["Node.js", "Python", "Java", "PHP", "Ruby", "Express", "Django"],
+            database: ["MongoDB", "MySQL", "PostgreSQL", "Redis", "Firebase"],
+            devops: ["AWS", "Azure", "Docker", "Kubernetes", "Jenkins", "Git"],
+            design: ["UI/UX", "Figma", "Adobe XD", "Sketch", "Photoshop"]
+        };
+        
+        // Simple page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            // Special handling for employer dashboard
+            if (pageId === 'employer') {
+                populateJobListings();
+                populateApplications();
+            }
+            
+            // Special handling for employee dashboard
+            if (pageId === 'dashboard') {
+                populateEmployeeApplications();
+                populateAvailableJobs();
+            }
+        }
+        
+        // Login tab switching
+        function switchTab(tab) {
+            const employeeForm = document.getElementById('employeeLoginForm');
+            const employerForm = document.getElementById('employerLoginForm');
+            const employeeTab = document.querySelector('.tab-btn:first-child');
+            const employerTab = document.querySelector('.tab-btn:last-child');
+            
+            if (tab === 'employee') {
+                employeeForm.classList.add('active');
+                employerForm.classList.remove('active');
+                employeeTab.classList.add('active');
+                employerTab.classList.remove('active');
+            } else {
+                employerForm.classList.add('active');
+                employeeForm.classList.remove('active');
+                employerTab.classList.add('active');
+                employeeTab.classList.remove('active');
+            }
+            
+            // Hide error messages
+            document.getElementById('empError').style.display = 'none';
+            document.getElementById('emprError').style.display = 'none';
+        }
+        
+        // Employer tab switching
+        function switchEmployerTab(tab) {
+            const jobsTab = document.getElementById('jobsTab');
+            const applicationsTab = document.getElementById('applicationsTab');
+            const jobsButton = document.querySelector('.tab-button:first-child');
+            const applicationsButton = document.querySelector('.tab-button:last-child');
+            
+            if (tab === 'jobs') {
+                jobsTab.classList.add('active');
+                applicationsTab.classList.remove('active');
+                jobsButton.classList.add('active');
+                applicationsButton.classList.remove('active');
+            } else {
+                applicationsTab.classList.add('active');
+                jobsTab.classList.remove('active');
+                applicationsButton.classList.add('active');
+                jobsButton.classList.remove('active');
+            }
+        }
+        
+        // Handle login
+        function handleLogin(event, role) {
+            event.preventDefault();
+            
+            const username = role === 'employee' ? 
+                document.getElementById('empUsername').value : 
+                document.getElementById('emprUsername').value;
+            const password = role === 'employee' ? 
+                document.getElementById('empPassword').value : 
+                document.getElementById('emprPassword').value;
+            
+            // Simple authentication (in real app, this would be server-side)
+            if (username === 'user' && password === 'password') {
+                currentUser = username;
+                userRole = role;
+                
+                // Update navigation
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('logoutLink').style.display = 'block';
+                
+                if (role === 'employee') {
+                    document.getElementById('analyzerLink').style.display = 'block';
+                    document.getElementById('dashboardLink').style.display = 'block';
+                    document.getElementById('employerLink').style.display = 'none';
+                    showPage('dashboard');
+                } else {
+                    document.getElementById('analyzerLink').style.display = 'none';
+                    document.getElementById('dashboardLink').style.display = 'none';
+                    document.getElementById('employerLink').style.display = 'block';
+                    showPage('employer');
+                }
+                
+                // Clear form
+                if (role === 'employee') {
+                    document.getElementById('employeeLoginForm').reset();
+                } else {
+                    document.getElementById('employerLoginForm').reset();
+                }
+            } else {
+                // Show error
+                const errorElement = role === 'employee' ? 
+                    document.getElementById('empError') : 
+                    document.getElementById('emprError');
+                errorElement.style.display = 'block';
+            }
+        }
+        
+        // Logout
+        function logout() {
+            currentUser = null;
+            userRole = null;
+            lastResumeProfile = null;
+            
+            // Update navigation
+            document.getElementById('loginLink').style.display = 'block';
+            document.getElementById('logoutLink').style.display = 'none';
+            document.getElementById('analyzerLink').style.display = 'none';
+            document.getElementById('dashboardLink').style.display = 'none';
+            document.getElementById('employerLink').style.display = 'none';
+            
+            showPage('home');
+        }
+        
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+        
+        function handleFileUpload(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please upload a PDF file');
+                return;
+            }
+            
+            progressBar.style.display = 'block';
+            progressFill.style.width = '30%';
+            
+            // Simulate processing
+            setTimeout(() => {
+                progressFill.style.width = '100%';
+                
+                // Show results
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                    showResults();
+                }, 500);
+            }, 1500);
+        }
+        
+        // Enhanced resume analysis
+        function analyzeResume() {
+            // Simulate extracting skills and experience from resume
+            // In a real application, this would use NLP and ML techniques
+            
+            // Simulate different resume profiles for variety
+            const resumeProfiles = [
+                // Frontend focused profile
+                {
+                    skills: [
+                        { name: "JavaScript", level: 4, category: "frontend" },
+                        { name: "HTML", level: 5, category: "frontend" },
+                        { name: "CSS", level: 5, category: "frontend" },
+                        { name: "React", level: 4, category: "frontend" },
+                        { name: "TypeScript", level: 3, category: "frontend" },
+                        { name: "Node.js", level: 2, category: "backend" }
+                    ],
+                    experienceLevel: "mid",
+                    yearsOfExperience: 3
+                },
+                // Backend focused profile
+                {
+                    skills: [
+                        { name: "Node.js", level: 5, category: "backend" },
+                        { name: "Python", level: 4, category: "backend" },
+                        { name: "Express", level: 4, category: "backend" },
+                        { name: "MongoDB", level: 3, category: "database" },
+                        { name: "JavaScript", level: 3, category: "frontend" },
+                        { name: "AWS", level: 2, category: "devops" }
+                    ],
+                    experienceLevel: "mid",
+                    yearsOfExperience: 4
+                },
+                // Full stack senior profile
+                {
+                    skills: [
+                        { name: "JavaScript", level: 5, category: "frontend" },
+                        { name: "React", level: 4, category: "frontend" },
+                        { name: "Node.js", level: 5, category: "backend" },
+                        { name: "MongoDB", level: 4, category: "database" },
+                        { name: "AWS", level: 4, category: "devops" },
+                        { name: "UI/UX", level: 3, category: "design" }
+                    ],
+                    experienceLevel: "senior",
+                    yearsOfExperience: 7
+                },
+                // Junior developer profile
+                {
+                    skills: [
+                        { name: "HTML", level: 4, category: "frontend" },
+                        { name: "CSS", level: 4, category: "frontend" },
+                        { name: "JavaScript", level: 3, category: "frontend" },
+                        { name: "React", level: 2, category: "frontend" }
+                    ],
+                    experienceLevel: "entry",
+                    yearsOfExperience: 1
+                }
+            ];
+            
+            // Randomly select a profile for this analysis
+            const profileIndex = Math.floor(Math.random() * resumeProfiles.length);
+            const selectedProfile = resumeProfiles[profileIndex];
+            
+            // Store the profile for later use
+            lastResumeProfile = selectedProfile;
+            
+            // Calculate job matches with enhanced algorithm
+            const jobMatches = calculateJobMatches(selectedProfile);
+            
+            return {
+                profile: selectedProfile,
+                jobMatches: jobMatches
+            };
+        }
+        
+        // Enhanced job matching algorithm
+        function calculateJobMatches(resumeProfile) {
+            return jobListings.map(job => {
+                // Calculate skill match score
+                let totalWeight = 0;
+                let matchedWeight = 0;
+                const matchedSkills = [];
+                const missingSkills = [];
+                
+                // Check each required skill in the job
+                job.skills.forEach(jobSkill => {
+                    totalWeight += jobSkill.weight;
+                    
+                    // Find matching skill in resume
+                    const resumeSkill = resumeProfile.skills.find(
+                        s => s.name.toLowerCase() === jobSkill.name.toLowerCase()
+                    );
+                    
+                    if (resumeSkill) {
+                        // Calculate match score based on skill level and weight
+                        const skillScore = (resumeSkill.level / 5) * jobSkill.weight;
+                        matchedWeight += skillScore;
+                        matchedSkills.push({
+                            name: jobSkill.name,
+                            level: resumeSkill.level
+                        });
+                    } else {
+                        missingSkills.push(jobSkill.name);
+                    }
+                });
+                
+                // Calculate experience match
+                let experienceScore = 0;
+                if (resumeProfile.experienceLevel === job.experienceLevel) {
+                    experienceScore = 1.0; // Perfect match
+                } else if (
+                    (resumeProfile.experienceLevel === "senior" && job.experienceLevel === "mid") ||
+                    (resumeProfile.experienceLevel === "mid" && job.experienceLevel === "entry")
+                ) {
+                    experienceScore = 0.7; // Overqualified but acceptable
+                } else if (
+                    (resumeProfile.experienceLevel === "entry" && job.experienceLevel === "mid") ||
+                    (resumeProfile.experienceLevel === "mid" && job.experienceLevel === "senior")
+                ) {
+                    experienceScore = 0.4; // Underqualified but might be considered
+                } else {
+                    experienceScore = 0.1; // Significant mismatch
+                }
+                
+                // Calculate overall match percentage
+                const skillMatchPercentage = totalWeight > 0 ? (matchedWeight / totalWeight) * 100 : 0;
+                const overallMatchPercentage = Math.round(
+                    (skillMatchPercentage * 0.8) + (experienceScore * 20)
+                );
+                
+                // Determine match level for UI styling
+                let matchLevel = "low";
+                if (overallMatchPercentage >= 70) matchLevel = "high";
+                else if (overallMatchPercentage >= 40) matchLevel = "medium";
+                
+                return {
+                    id: job.id,
+                    title: job.title,
+                    company: job.company,
+                    match: overallMatchPercentage + '%',
+                    matchLevel: matchLevel,
+                    matchedSkills: matchedSkills,
+                    missingSkills: missingSkills,
+                    experienceMatch: experienceScore
+                };
+            }).sort((a, b) => parseInt(b.match) - parseInt(a.match)); // Sort by match percentage descending
+        }
+        
+        function showResults() {
+            // Analyze the resume dynamically
+            const analysis = analyzeResume();
+            const profile = analysis.profile;
+            
+            // Display skills with categories
+            const skillsContainer = document.getElementById('skillsContainer');
+            skillsContainer.innerHTML = '';
+            
+            // Group skills by category
+            const skillsByCategory = {};
+            profile.skills.forEach(skill => {
+                if (!skillsByCategory[skill.category]) {
+                    skillsByCategory[skill.category] = [];
+                }
+                skillsByCategory[skill.category].push(skill);
+            });
+            
+            // Display skills by category
+            Object.keys(skillsByCategory).forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.innerHTML = `<h5>${category.charAt(0).toUpperCase() + category.slice(1)} Skills</h5>`;
+                
+                const skillsTags = document.createElement('div');
+                skillsByCategory[category].forEach(skill => {
+                    const skillClass = skill.level >= 4 ? 'primary' : 'secondary';
+                    const skillTag = document.createElement('span');
+                    skillTag.className = `skill-tag ${skillClass}`;
+                    skillTag.textContent = `${skill.name} (${skill.level}/5)`;
+                    skillsTags.appendChild(skillTag);
+                });
+                
+                categoryDiv.appendChild(skillsTags);
+                skillsContainer.appendChild(categoryDiv);
+            });
+            
+            // Display experience level
+            const experienceContainer = document.getElementById('experienceContainer');
+            const experienceClass = profile.experienceLevel;
+            experienceContainer.innerHTML = `
+                <div class="experience-level ${experienceClass}">
+                    ${profile.experienceLevel.charAt(0).toUpperCase() + profile.experienceLevel.slice(1)} Level 
+                    (${profile.yearsOfExperience} years experience)
+                </div>
+            `;
+            
+            // Display job matches with detailed information and apply buttons
+            const matchesContainer = document.getElementById('matchesContainer');
+            matchesContainer.innerHTML = analysis.jobMatches.map(job => `
+                <div class="job-match">
+                    <div class="match-score ${job.matchLevel}">${job.match}</div>
+                    <div class="job-title">${job.title}</div>
+                    <div class="company-name">${job.company}</div>
+                    <div class="skill-match">
+                        <strong>Matched Skills:</strong>
+                        ${job.matchedSkills.map(skill => 
+                            `<span class="matched">${skill.name} (${skill.level}/5)</span>`
+                        ).join('')}
+                    </div>
+                    ${job.missingSkills.length > 0 ? `
+                        <div class="skill-match">
+                            <strong>Missing Skills:</strong>
+                            ${job.missingSkills.map(skill => 
+                                `<span class="missing">${skill}</span>`
+                            ).join('')}
+                        </div>
+                    ` : ''}
+                    ${parseInt(job.match) >= 40 ? 
+                        `<button class="btn btn-success" onclick="applyForJob(${job.id}, '${job.title}', '${job.company}')">Apply</button>` : 
+                        '<p style="color: #dc3545; margin-top: 10px;">Not eligible to apply (match below 40%)</p>'}
+                </div>
+            `).join('');
+            
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        // Refresh analysis without re-uploading resume
+        function refreshAnalysis() {
+            if (!lastResumeProfile) {
+                alert('Please upload your resume first to refresh the analysis.');
+                return;
+            }
+            
+            // Re-calculate job matches with the stored profile
+            const jobMatches = calculateJobMatches(lastResumeProfile);
+            
+            // Update the job matches display
+            const matchesContainer = document.getElementById('matchesContainer');
+            matchesContainer.innerHTML = jobMatches.map(job => `
+                <div class="job-match">
+                    <div class="match-score ${job.matchLevel}">${job.match}</div>
+                    <div class="job-title">${job.title}</div>
+                    <div class="company-name">${job.company}</div>
+                    <div class="skill-match">
+                        <strong>Matched Skills:</strong>
+                        ${job.matchedSkills.map(skill => 
+                            `<span class="matched">${skill.name} (${skill.level}/5)</span>`
+                        ).join('')}
+                    </div>
+                    ${job.missingSkills.length > 0 ? `
+                        <div class="skill-match">
+                            <strong>Missing Skills:</strong>
+                            ${job.missingSkills.map(skill => 
+                                `<span class="missing">${skill}</span>`
+                            ).join('')}
+                        </div>
+                    ` : ''}
+                    ${parseInt(job.match) >= 40 ? 
+                        `<button class="btn btn-success" onclick="applyForJob(${job.id}, '${job.title}', '${job.company}')">Apply</button>` : 
+                        '<p style="color: #dc3545; margin-top: 10px;">Not eligible to apply (match below 40%)</p>'}
+                </div>
+            `).join('');
+        }
+        
+        // Apply for a job
+        function applyForJob(jobId, jobTitle, companyName) {
+            // Check if already applied
+            const alreadyApplied = applications.some(app => 
+                app.jobId === jobId && app.applicant === currentUser
+            );
+            
+            if (alreadyApplied) {
+                alert('You have already applied for this job.');
+                return;
+            }
+            
+            // Create new application
+            const newApplication = {
+                id: applications.length > 0 ? Math.max(...applications.map(a => a.id)) + 1 : 1,
+                jobId: jobId,
+                jobTitle: jobTitle,
+                companyName: companyName,
+                applicant: currentUser,
+                dateApplied: new Date().toLocaleDateString(),
+                status: 'Pending'
+            };
+            
+            applications.push(newApplication);
+            
+            // Show success message
+            alert(`Application submitted for ${jobTitle} at ${companyName}!`);
+            
+            // If on dashboard, refresh the applications list
+            if (document.getElementById('dashboard').classList.contains('active')) {
+                populateEmployeeApplications();
+            }
+        }
+        
+        // Populate employee applications on dashboard
+        function populateEmployeeApplications() {
+            const employeeApplicationsContainer = document.getElementById('employeeApplications');
+            
+            // Filter applications by current employee
+            const employeeApplications = applications.filter(app => app.applicant === currentUser);
+            
+            if (employeeApplications.length === 0) {
+                employeeApplicationsContainer.innerHTML = '<div class="no-applications">You haven\'t applied for any jobs yet.</div>';
+                return;
+            }
+            
+            employeeApplicationsContainer.innerHTML = employeeApplications.map(app => {
+                const statusClass = `status-${app.status.toLowerCase()}`;
+                
+                return `
+                <div class="application">
+                    <div class="application-header">
+                        <div class="application-title">${app.jobTitle} at ${app.companyName}</div>
+                        <div class="application-status ${statusClass}">${app.status}</div>
+                    </div>
+                    <div class="application-details">
+                        <p><strong>Date Applied:</strong> ${app.dateApplied}</p>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+        
+        // Populate available jobs on dashboard
+        function populateAvailableJobs() {
+            const availableJobsContainer = document.getElementById('availableJobs');
+            
+            if (jobListings.length === 0) {
+                availableJobsContainer.innerHTML = '<p>No jobs available at the moment.</p>';
+                return;
+            }
+            
+            availableJobsContainer.innerHTML = jobListings.map(job => {
+                const expClass = job.experienceLevel;
+                const expText = job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1);
+                
+                return `
+                <div class="job-item">
+                    <h4>${job.title}</h4>
+                    <p><strong>Company:</strong> ${job.company}</p>
+                    <p><strong>Experience Level:</strong> <span class="experience-level ${expClass}">${expText}</span></p>
+                    <p><strong>Skills:</strong> ${job.skills.map(s => s.name).join(', ')}</p>
+                    <button class="btn btn-success" onclick="applyForJob(${job.id}, '${job.title}', '${job.company}')">Apply</button>
+                </div>
+            `;
+            }).join('');
+        }
+        
+        // Refresh available jobs on dashboard
+        function refreshAvailableJobs() {
+            populateAvailableJobs();
+            alert('Job list refreshed!');
+        }
+        
+        // Employer functions
+        function populateJobListings() {
+            const jobListingsContainer = document.getElementById('jobListings');
+            
+            // Filter jobs by current employer
+            const employerJobs = jobListings.filter(job => job.postedBy === currentUser);
+            
+            if (employerJobs.length === 0) {
+                jobListingsContainer.innerHTML = '<p>You haven\'t posted any jobs yet.</p>';
+                return;
+            }
+            
+            jobListingsContainer.innerHTML = employerJobs.map(job => {
+                const expClass = job.experienceLevel;
+                const expText = job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1);
+                
+                return `
+                <div class="job-listing">
+                    <div class="job-title">${job.title}</div>
+                    <div class="company-name">${job.company}</div>
+                    <p>${job.description}</p>
+                    <div>
+                        <strong>Required Skills:</strong> ${job.skills.map(s => s.name).join(', ')}
+                    </div>
+                    <div>
+                        <strong>Experience Level:</strong> 
+                        <span class="experience-level ${expClass}">${expText}</span>
+                    </div>
+                    <div class="job-actions">
+                        <button class="btn" onclick="editJob(${job.id})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteJobFromDashboard(${job.id})">Delete</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+        
+        function populateApplications() {
+            const applicationsList = document.getElementById('applicationsList');
+            
+            // Debug: Log current user and applications
+            console.log("Current user:", currentUser);
+            console.log("All applications:", applications);
+            
+            // Filter applications for jobs posted by the current employer
+            const employerJobs = jobListings.filter(job => job.postedBy === currentUser);
+            const employerJobIds = employerJobs.map(job => job.id);
+            
+            console.log("Employer jobs:", employerJobs);
+            console.log("Employer job IDs:", employerJobIds);
+            
+            const employerApplications = applications.filter(app => 
+                employerJobIds.includes(app.jobId)
+            );
+            
+            console.log("Employer applications:", employerApplications);
+            
+            if (employerApplications.length === 0) {
+                applicationsList.innerHTML = '<div class="no-applications">No applications received yet.</div>';
+                return;
+            }
+            
+            applicationsList.innerHTML = employerApplications.map(app => {
+                const statusClass = `status-${app.status.toLowerCase()}`;
+                
+                return `
+                <div class="application">
+                    <div class="application-header">
+                        <div class="application-title">${app.jobTitle} at ${app.companyName}</div>
+                        <div class="application-status ${statusClass}">${app.status}</div>
+                    </div>
+                    <div class="application-details">
+                        <p><strong>Applicant:</strong> ${app.applicant}</p>
+                        <p><strong>Date Applied:</strong> ${app.dateApplied}</p>
+                    </div>
+                    <div class="application-actions">
+                        <select id="status-${app.id}" class="form-group" style="width: auto; margin-right: 10px;">
+                            <option value="Pending" ${app.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Reviewed" ${app.status === 'Reviewed' ? 'selected' : ''}>Reviewed</option>
+                            <option value="Accepted" ${app.status === 'Accepted' ? 'selected' : ''}>Accepted</option>
+                            <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                        </select>
+                        <button class="btn" onclick="updateApplicationStatus(${app.id})">Update Status</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+        
+        function updateApplicationStatus(applicationId) {
+            const statusSelect = document.getElementById(`status-${applicationId}`);
+            const newStatus = statusSelect.value;
+            
+            const applicationIndex = applications.findIndex(app => app.id === applicationId);
+            
+            if (applicationIndex === -1) {
+                alert('Application not found');
+                return;
+            }
+            
+            applications[applicationIndex].status = newStatus;
+            
+            // Refresh the applications list
+            populateApplications();
+            
+            // Show success message
+            showSuccessMessage('Application status updated!');
+        }
+        
+        function postNewJob(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('jobTitle').value;
+            const company = document.getElementById('companyName').value;
+            const description = document.getElementById('jobDescription').value;
+            const skillsInput = document.getElementById('requiredSkills').value;
+            const experienceLevel = document.getElementById('experienceLevel').value;
+            
+            // Convert skills to array of objects with weights
+            const skillsArray = skillsInput.split(',').map(skill => {
+                const skillName = skill.trim();
+                // Assign weight based on common importance (in a real app, this would be more sophisticated)
+                const weight = skillName === "JavaScript" || skillName === "React" || skillName === "Node.js" ? 5 : 4;
+                return { name: skillName, weight };
+            });
+            
+            // Generate a unique ID for the new job
+            const newId = jobListings.length > 0 ? Math.max(...jobListings.map(job => job.id)) + 1 : 1;
+            
+            // Add new job to listings
+            jobListings.push({
+                id: newId,
+                title,
+                company,
+                description,
+                skills: skillsArray,
+                experienceLevel,
+                postedBy: currentUser
+            });
+            
+            // Reset form and go back to employer dashboard
+            document.getElementById('newJobForm').reset();
+            showPage('employer');
+            
+            // Show success message
+            showSuccessMessage('Job posted successfully!');
+        }
+        
+        function editJob(jobId) {
+            // Find the job to edit
+            const job = jobListings.find(j => j.id === jobId);
+            
+            if (!job) {
+                alert('Job not found');
+                return;
+            }
+            
+            // Store the current job ID globally
+            currentJobId = jobId;
+            
+            // Populate the edit form with job details
+            document.getElementById('editJobId').value = job.id;
+            document.getElementById('editJobTitle').value = job.title;
+            document.getElementById('editCompanyName').value = job.company;
+            document.getElementById('editJobDescription').value = job.description;
+            document.getElementById('editRequiredSkills').value = job.skills.map(s => s.name).join(', ');
+            document.getElementById('editExperienceLevel').value = job.experienceLevel;
+            
+            // Show the edit job page
+            showPage('editJob');
+        }
+        
+        function updateJob(event) {
+            event.preventDefault();
+            
+            // Get the updated job details
+            const jobId = parseInt(document.getElementById('editJobId').value);
+            const title = document.getElementById('editJobTitle').value;
+            const company = document.getElementById('editCompanyName').value;
+            const description = document.getElementById('editJobDescription').value;
+            const skillsInput = document.getElementById('editRequiredSkills').value;
+            const experienceLevel = document.getElementById('editExperienceLevel').value;
+            
+            // Convert skills to array of objects with weights
+            const skillsArray = skillsInput.split(',').map(skill => {
+                const skillName = skill.trim();
+                // Assign weight based on common importance
+                const weight = skillName === "JavaScript" || skillName === "React" || skillName === "Node.js" ? 5 : 4;
+                return { name: skillName, weight };
+            });
+            
+            // Find the job index
+            const jobIndex = jobListings.findIndex(j => j.id === jobId);
+            
+            if (jobIndex === -1) {
+                alert('Job not found');
+                return;
+            }
+            
+            // Update the job
+            jobListings[jobIndex] = {
+                ...jobListings[jobIndex],
+                title,
+                company,
+                description,
+                skills: skillsArray,
+                experienceLevel
+            };
+            
+            // Go back to employer dashboard
+            showPage('employer');
+            
+            // Show success message
+            showSuccessMessage('Job updated successfully!');
+        }
+        
+        function deleteJobFromDashboard(jobId) {
+            if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+                // Find the job index
+                const jobIndex = jobListings.findIndex(j => j.id === jobId);
+                
+                if (jobIndex === -1) {
+                    alert('Job not found');
+                    return;
+                }
+                
+                // Remove the job
+                jobListings.splice(jobIndex, 1);
+                
+                // Remove applications for this job
+                applications = applications.filter(app => app.jobId !== jobId);
+                
+                // Refresh the job listings
+                populateJobListings();
+                
+                // Show success message
+                showSuccessMessage('Job deleted successfully!');
+            }
+        }
+        
+        function deleteJobFromEdit() {
+            if (!currentJobId) {
+                alert('No job selected for deletion');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+                // Find the job index
+                const jobIndex = jobListings.findIndex(j => j.id === currentJobId);
+                
+                if (jobIndex === -1) {
+                    alert('Job not found');
+                    return;
+                }
+                
+                // Remove the job
+                jobListings.splice(jobIndex, 1);
+                
+                // Remove applications for this job
+                applications = applications.filter(app => app.jobId !== currentJobId);
+                
+                // Go back to employer dashboard
+                showPage('employer');
+                
+                // Show success message
+                showSuccessMessage('Job deleted successfully!');
+            }
+        }
+        
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            
+            const jobListingsContainer = document.getElementById('jobListings');
+            if (jobListingsContainer) {
+                jobListingsContainer.parentNode.insertBefore(successDiv, jobListingsContainer);
+            } else {
+                const applicationsList = document.getElementById('applicationsList');
+                if (applicationsList) {
+                    applicationsList.parentNode.insertBefore(successDiv, applicationsList);
+                }
+            }
+            
+            // Remove message after 3 seconds
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
